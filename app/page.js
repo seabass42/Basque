@@ -1,6 +1,19 @@
+"use client"
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function Welcome() {
+  const router = useRouter()
+  const [hasUserID, setHasUserID] = useState(false)
+/* Implement when done testing.
+  useEffect(() => {
+    const existingUserID = localStorage.getItem('basque_user_id')
+    setHasUserID(!!existingUserID)
+  }, [])
+
+  if (hasUserID) router.push('/results')
+*/
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center px-6">
       <div className="max-w-3xl text-center">

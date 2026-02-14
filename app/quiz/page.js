@@ -4,65 +4,209 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 export default function Quiz() {
-  const [zip, setZip] = useState("")
   const router = useRouter()
+  
+  // STEP 1: Track which question we're on (starts at 0)
+  const [currentStep, setCurrentStep] = useState(0)
+  
+  // STEP 2: Store all the user's answers
+  const [answers, setAnswers] = useState({
+    zipCode: "",
+    transportation: "",
+    diet: ""
+  })
 
-  function handleSubmit(e) {
-    e.preventDefault()
+  // STEP 3: Define your questions
+  // This is just an array of objects - each object is one question
+  const questions = [
+    {
+      id: "zipCode",
+      text: "What's your ZIP code?",
+      type: "text",
+      placeholder: "e.g. 94107"
+    },
+    {
+      id: "transportation",
+      text: "How do you usually get around?",
+      type: "choice",
+      options: [
+        "Drive alone",
+        "Carpool",
+        "Public transit",
+        "Bike/Walk"
+      ]
+    },
+    {
+      id: "diet",
+      text: "What best describes your diet?",
+      type: "choice",
+      options: [
+        "Meat with most meals",
+        "Meat sometimes",
+        "Vegetarian",
+        "Mostly plant-based"
+      ]
+    }
+  ]
 
-    if (!zip) return
+  // Get the current question object
+  const question = questions[currentStep]
 
-    console.log("ZIP submitted:", zip)
-
-    router.push("/results")
+  // STEP 4: Function to update answers when user types/selects
+  function handleAnswerChange(value) {
+    setAnswers({
+      ...answers,           // Keep all existing answers
+      [question.id]: value  // Update just this question's answer
+    })
   }
 
-  return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-green-50 to-white">
+  // STEP 5: Function for "Next" button
+  function handleNext() {
+    // If not on last question, go to next question
+    if (currentStep < questions.length - 1) {
+      setCurrentStep(currentStep + 1)
+    } else {
+      // If on last question, submit the quiz
+      submitQuiz()
+    }
+  }
 
+  // STEP 6: Function for "Back" button
+  function handleBack() {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  // STEP 7: Submit all answers to the API
+  async function submitQuiz() {
+    console.log("Submitting answers:", answers)
+
+    try {
+      const response = await fetch('/api/quiz-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(answers)
+      })
+      console.log("fetching posts")
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Save user ID for later
+        localStorage.setItem('basque_user_id', data.userId)
+        // Go to results page
+        //router.push('/results')
+      } else {
+        alert('Error: ' + data.error)
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Failed to submit quiz')
+    }
+  }
+
+  // STEP 8: Check if current question has been answered
+  const isAnswered = answers[question.id] && answers[question.id].trim() !== ""
+
+  // STEP 9: Render the UI
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+      
       {/* Top Bar */}
       <div className="bg-green-700 py-4 px-6 shadow-md">
-        <h2 className="text-white text-lg font-semibold tracking-wide">
+        <h2 className="text-white text-lg font-semibold">
           Basque — Climate Action Quiz
         </h2>
       </div>
 
-      {/* Main Content */}
-      <div className="flex items-center justify-center px-6 py-20">
-        <div className="bg-white rounded-3xl shadow-xl p-10 max-w-lg w-full">
+      {/* Progress Bar */}
+      <div className="bg-white shadow-sm">
+        <div className="max-w-3xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-600">
+              Question {currentStep + 1} of {questions.length}
+            </span>
+            <span className="text-sm text-gray-600">
+              {Math.round(((currentStep + 1) / questions.length) * 100)}%
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-green-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
+            />
+          </div>
+        </div>
+      </div>
 
-          <h1 className="text-3xl font-bold text-green-700 mb-4">
-            Let’s personalize your climate impact
+      {/* Question Area */}
+      <div className="flex items-center justify-center px-6 py-12">
+        <div className="bg-white rounded-3xl shadow-xl p-10 max-w-2xl w-full">
+          
+          {/* Question Title */}
+          <h1 className="text-3xl font-bold text-green-700 mb-8">
+            {question.text}
           </h1>
 
-          <p className="text-gray-600 mb-8">
-            First, tell us your ZIP code so we can tailor recommendations to your area.
-          </p>
+          {/* Text Input (for ZIP code) */}
+          {question.type === "text" && (
+            <input
+              type="text"
+              value={answers[question.id]}
+              onChange={(e) => handleAnswerChange(e.target.value)}
+              placeholder={question.placeholder}
+              className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 text-lg
+                         focus:outline-none focus:ring-2 focus:ring-green-400"
+            />
+          )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                ZIP Code
-              </label>
-
-              <input
-                type="text"
-                value={zip}
-                onChange={(e) => setZip(e.target.value)}
-                placeholder="e.g. 94107"
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition"
-              />
+          {/* Multiple Choice */}
+          {question.type === "choice" && (
+            <div className="space-y-3">
+              {question.options.map((option) => (
+                <button
+                  key={option}
+                  onClick={() => handleAnswerChange(option)}
+                  className={`w-full text-left p-4 border-2 rounded-xl transition
+                    ${answers[question.id] === option
+                      ? 'border-green-600 bg-green-50'
+                      : 'border-gray-200 hover:border-green-300'
+                    }`}
+                >
+                  <span className="text-gray-700 font-medium">{option}</span>
+                </button>
+              ))}
             </div>
+          )}
 
+          {/* Navigation Buttons */}
+          <div className="flex gap-4 mt-8">
+            {/* Back Button (only show if not on first question) */}
+            {currentStep > 0 && (
+              <button
+                onClick={handleBack}
+                className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl 
+                           font-semibold hover:bg-gray-300 transition"
+              >
+                Back
+              </button>
+            )}
+            
+            {/* Next/Submit Button */}
             <button
-              type="submit"
-              className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition duration-200 shadow-md"
+              onClick={handleNext}
+              disabled={!isAnswered}
+              className={`flex-1 py-3 rounded-xl font-semibold transition shadow-md
+                ${isAnswered
+                  ? 'bg-green-600 text-white hover:bg-green-700'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
             >
-              Get My Recommendations
+              {currentStep === questions.length - 1 ? 'Submit' : 'Next'}
             </button>
+          </div>
 
-          </form>
         </div>
       </div>
     </div>

@@ -13,10 +13,17 @@ export default function Quiz() {
   const [answers, setAnswers] = useState({
     zipCode: "",
     transportation: "",
-    diet: ""
+    diet: "",
+    homeEnergy: "",
+    thermostat: "",
+    recycling: "",
+    waterUsage: "",
+    flightsPerYear: "",
+    homeSize: "",
+    wfhDays: ""
   })
 
-  // STEP 3: Define your questions
+  // STEP 3: Define your questions (max 10)
   // This is just an array of objects - each object is one question
   const questions = [
     {
@@ -45,6 +52,83 @@ export default function Quiz() {
         "Meat sometimes",
         "Vegetarian",
         "Mostly plant-based"
+      ]
+    },
+    {
+      id: "homeEnergy",
+      text: "What powers your home heating/cooking?",
+      type: "choice",
+      options: [
+        "Mostly natural gas",
+        "Mix of gas and electric",
+        "All electric",
+        "Electric with renewable plan"
+      ]
+    },
+    {
+      id: "thermostat",
+      text: "How do you typically set your thermostat?",
+      type: "choice",
+      options: [
+        "72°F+ year-round",
+        "Cool ~70°F / Heat ~70°F",
+        "Seasonal: 68°F heat / 75°F cool",
+        "Efficient: 66°F heat / 78°F+ cool"
+      ]
+    },
+    {
+      id: "recycling",
+      text: "Recycling/composting habits",
+      type: "choice",
+      options: [
+        "Rarely recycle",
+        "Recycle basics (paper/plastic)",
+        "Recycle + some compost",
+        "Recycle + compost consistently"
+      ]
+    },
+    {
+      id: "waterUsage",
+      text: "Water usage at home (showers, laundry, etc.)",
+      type: "choice",
+      options: [
+        "High",
+        "Moderate",
+        "Low",
+        "Very low / water-efficient fixtures"
+      ]
+    },
+    {
+      id: "flightsPerYear",
+      text: "How many round-trip flights per year?",
+      type: "choice",
+      options: [
+        "6+",
+        "3-5",
+        "1-2",
+        "0"
+      ]
+    },
+    {
+      id: "homeSize",
+      text: "Approximate home size",
+      type: "choice",
+      options: [
+        "Large house (2000+ sq ft)",
+        "Medium house (1000-2000 sq ft)",
+        "Small apt/house (<1000 sq ft)",
+        "Shared / dorm / co-living"
+      ]
+    },
+    {
+      id: "wfhDays",
+      text: "Days working from home per week",
+      type: "choice",
+      options: [
+        "0",
+        "1-2",
+        "3-4",
+        "5+"
       ]
     }
   ]
@@ -90,24 +174,37 @@ export default function Quiz() {
       })
       console.log("fetching posts")
 
-      const data = await response.json()
+      let data = { success: false }
+      const contentType = response.headers.get('content-type') || ''
+      if (contentType.includes('application/json')) {
+        try {
+          data = await response.json()
+        } catch (e) {
+          data = { success: false }
+        }
+      }
 
-      if (data.success) {
-        // Save user ID for later
+      if (response.ok && data.success) {
+        // Save user ID and answers for later
         localStorage.setItem('basque_user_id', data.userId)
+        localStorage.setItem('basque_answers', JSON.stringify(answers))
         // Go to results page
-        //router.push('/results')
+        router.push('/results')
       } else {
-        alert('Error: ' + data.error)
+        // Fallback: still show results using local answers
+        localStorage.setItem('basque_answers', JSON.stringify(answers))
+        router.push('/results')
       }
     } catch (error) {
       console.error('Error:', error)
-      alert('Failed to submit quiz')
+      // Fallback: still show results using local answers
+      localStorage.setItem('basque_answers', JSON.stringify(answers))
+      router.push('/results')
     }
   }
 
   // STEP 8: Check if current question has been answered
-  const isAnswered = answers[question.id] && answers[question.id].trim() !== ""
+  const isAnswered = answers[question.id] && answers[question.id].toString().trim() !== ""
 
   // STEP 9: Render the UI
   return (

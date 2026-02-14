@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 
 function computeScore(answers) {
-  // Simple weighted scoring out of 100 based on answers
   let score = 100
 
   const t = answers.transportation
@@ -52,29 +51,110 @@ function computeScore(answers) {
 export default function Results() {
   const [answers, setAnswers] = useState(null)
   const [recs, setRecs] = useState({ articles: [], mealPlans: [], improvements: [] })
+  const [loading, setLoading] = useState(true)
+  const [locationInfo, setLocationInfo] = useState(null)
 
   useEffect(() => {
-    const stored = localStorage.getItem('basque_answers')
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored)
-        setAnswers(parsed)
-        // Fetch recommendations
-        fetch('/api/recommendations', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(parsed)
-        })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success) setRecs({ articles: data.articles, mealPlans: data.mealPlans, improvements: data.improvements })
-        })
-        .catch(() => {})
-      } catch {}
+    async function fetchData() {
+      const userId = localStorage.getItem('basque_user_id')
+      
+      if (userId) {
+        try {
+          console.log('Fetching user data from MongoDB...')
+          
+          const userResponse = await fetch(`/api/user?userId=${userId}`)
+          const userData = await userResponse.json()
+
+          if (userResponse.ok && userData.success) {
+            console.log('Got data from MongoDB')
+            const userAnswers = userData.user
+            setAnswers(userAnswers)
+
+            // Lookup location info
+            if (userAnswers.zipCode) {
+              try {
+                const zipResponse = await fetch(`/api/zipcode-lookup?zip=${userAnswers.zipCode}`)
+                const zipData = await zipResponse.json()
+                if (zipData.success) {
+                  setLocationInfo(zipData)
+                  console.log('Location:', zipData.displayName)
+                }
+              } catch (error) {
+                console.error('Error fetching location:', error)
+              }
+            }
+
+            const recResponse = await fetch('/api/recommendations', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(userAnswers)
+            })
+            
+            const recData = await recResponse.json()
+            if (recData.success) {
+              setRecs({ 
+                articles: recData.articles, 
+                mealPlans: recData.mealPlans, 
+                improvements: recData.improvements 
+              })
+            }
+            
+            setLoading(false)
+            return
+          }
+        } catch (error) {
+          console.error('Error fetching from MongoDB:', error)
+        }
+      }
+
+      console.log('Falling back to localStorage')
+      const stored = localStorage.getItem('basque_answers')
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored)
+          setAnswers(parsed)
+          
+          if (parsed.zipCode) {
+            try {
+              const zipResponse = await fetch(`/api/zipcode-lookup?zip=${parsed.zipCode}`)
+              const zipData = await zipResponse.json()
+              if (zipData.success) {
+                setLocationInfo(zipData)
+              }
+            } catch {}
+          }
+          
+          fetch('/api/recommendations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(parsed)
+          })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) setRecs({ articles: data.articles, mealPlans: data.mealPlans, improvements: data.improvements })
+          })
+          .catch(() => {})
+        } catch {}
+      }
+      
+      setLoading(false)
     }
+
+    fetchData()
   }, [])
 
   const score = useMemo(() => answers ? computeScore(answers) : 0, [answers])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your results...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!answers) {
     return (
@@ -92,50 +172,68 @@ export default function Results() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
-      {/* Top Bar */}
       <div className="bg-green-700 py-4 px-6 shadow-md">
         <h2 className="text-white text-lg font-semibold">
-          Basque — Your Personalized Results
+          Basque - Your Personalized Results
         </h2>
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Summary Card */}
         <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl p-8">
           <h3 className="text-2xl font-bold text-green-700 mb-4">Your Preference Summary</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-            <div><span className="font-semibold">Location:</span> {answers.zipCode || '—'}</div>
-            <div><span className="font-semibold">Transport:</span> {answers.transportation || '—'}</div>
-            <div><span className="font-semibold">Diet:</span> {answers.diet || '—'}</div>
-            <div><span className="font-semibold">Home Energy:</span> {answers.homeEnergy || '—'}</div>
-            <div><span className="font-semibold">Thermostat:</span> {answers.thermostat || '—'}</div>
-            <div><span className="font-semibold">Recycling:</span> {answers.recycling || '—'}</div>
-            <div><span className="font-semibold">Water Use:</span> {answers.waterUsage || '—'}</div>
-            <div><span className="font-semibold">Flights/Year:</span> {answers.flightsPerYear || '—'}</div>
-            <div><span className="font-semibold">Home Size:</span> {answers.homeSize || '—'}</div>
-            <div><span className="font-semibold">WFH Days/Week:</span> {answers.wfhDays || '—'}</div>
+            
+            <div className="md:col-span-2 flex items-center gap-3">
+              <span className="font-semibold">Location:</span>
+              {locationInfo ? (
+                <div className="flex items-center gap-2">
+                  <span 
+                    className="px-3 py-1 rounded-full text-white font-bold text-sm shadow-md"
+                    style={{ backgroundColor: locationInfo.state.color }}
+                  >
+                    {locationInfo.state.abbreviation}
+                  </span>
+                  <span className="text-lg font-medium text-green-700">
+                    {locationInfo.displayName}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    ({locationInfo.state.name})
+                  </span>
+                </div>
+              ) : (
+                <span>{answers.zipCode || '-'}</span>
+              )}
+            </div>
+
+            <div><span className="font-semibold">Transport:</span> {answers.transportation || '-'}</div>
+            <div><span className="font-semibold">Diet:</span> {answers.diet || '-'}</div>
+            <div><span className="font-semibold">Home Energy:</span> {answers.homeEnergy || '-'}</div>
+            <div><span className="font-semibold">Thermostat:</span> {answers.thermostat || '-'}</div>
+            <div><span className="font-semibold">Recycling:</span> {answers.recycling || '-'}</div>
+            <div><span className="font-semibold">Water Use:</span> {answers.waterUsage || '-'}</div>
+            <div><span className="font-semibold">Flights/Year:</span> {answers.flightsPerYear || '-'}</div>
+            <div><span className="font-semibold">Home Size:</span> {answers.homeSize || '-'}</div>
+            <div><span className="font-semibold">WFH Days/Week:</span> {answers.wfhDays || '-'}</div>
           </div>
         </div>
 
-        {/* Score Card */}
         <div className="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center justify-center">
           <div className="text-sm text-gray-600 mb-2">Your Basque Score</div>
           <div className="text-6xl font-extrabold text-green-700">{score}</div>
           <div className="mt-3 text-gray-700 text-center">
-            {score >= 80 ? 'Great job — you\'re already very climate-conscious!' :
-             score >= 60 ? 'Solid foundation — a few tweaks can make a big impact.' :
-             score >= 40 ? 'Lots of opportunity — try a few actions below to level up.' :
-             'A fresh start — the suggestions below will help you begin strong.'}
+            {score >= 80 ? 'Great job - you are already very climate-conscious!' :
+             score >= 60 ? 'Solid foundation - a few tweaks can make a big impact.' :
+             score >= 40 ? 'Lots of opportunity - try a few actions below to level up.' :
+             'A fresh start - the suggestions below will help you begin strong.'}
           </div>
         </div>
 
-        {/* Articles */}
         <div className="lg:col-span-1 bg-white rounded-3xl shadow-xl p-8">
           <h3 className="text-xl font-bold text-green-700 mb-4">Suggested Articles</h3>
           <ul className="space-y-3">
             {recs.articles.map((a, i) => (
               <li key={i}>
-                <a href={a.link} target="_blank" className="text-green-700 hover:underline">
+                <a href={a.link} target="_blank" rel="noopener noreferrer" className="text-green-700 hover:underline">
                   • {a.title}
                 </a>
               </li>
@@ -143,7 +241,6 @@ export default function Results() {
           </ul>
         </div>
 
-        {/* Meal Plans */}
         <div className="lg:col-span-1 bg-white rounded-3xl shadow-xl p-8">
           <h3 className="text-xl font-bold text-green-700 mb-4">Meal Ideas</h3>
           {recs.mealPlans.map((mp, i) => (
@@ -151,14 +248,13 @@ export default function Results() {
               <div className="font-semibold text-gray-800 mb-2">{mp.title}</div>
               <ul className="list-disc list-inside text-gray-700 space-y-2">
                 {mp.items?.map((it, j) => (
-                  <li key={j}><a href={it.link} target="_blank" className="text-green-700 hover:underline">{it.name}</a></li>
+                  <li key={j}><a href={it.link} target="_blank" rel="noopener noreferrer" className="text-green-700 hover:underline">{it.name}</a></li>
                 ))}
               </ul>
             </div>
           ))}
         </div>
 
-        {/* Improvements */}
         <div className="lg:col-span-1 bg-white rounded-3xl shadow-xl p-8">
           <h3 className="text-xl font-bold text-green-700 mb-4">Lifestyle Improvements</h3>
           <ul className="space-y-3">
@@ -166,7 +262,7 @@ export default function Results() {
               <li key={i}>
                 <div className="font-semibold text-gray-800">{imp.title}</div>
                 {imp.description && <div className="text-gray-700 text-sm">{imp.description}</div>}
-                {imp.link && <a href={imp.link} target="_blank" className="text-green-700 hover:underline text-sm">Learn more</a>}
+                {imp.link && <a href={imp.link} target="_blank" rel="noopener noreferrer" className="text-green-700 hover:underline text-sm">Learn more</a>}
               </li>
             ))}
           </ul>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import DarkModeToggle from "./DarkModeToggle";
 
 // Green-themed Pill Navigation inspired by React Bits (JS + Tailwind)
 export default function PillNav() {
@@ -235,95 +236,96 @@ export default function PillNav() {
           {/* Logo */}
           <div ref={logoRef} className="flex items-center gap-2 select-none">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-white font-bold">
-            
               🌳
             </span>
             <span className="text-lg font-semibold text-emerald-800">Basque</span>
           </div>
+          <div className="flex items-center gap-4">
+            {/* Desktop Nav */}
+            <nav
+              ref={navItemsRef}
+              className="relative hidden rounded-full bg-green-600/10 p-1 shadow-inner sm:block"
+              aria-label="Primary"
+            >
+              <ul className="flex items-center gap-1">
+                {items.map((item, idx) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      onMouseEnter={() => handleEnter(idx)}
+                      onMouseLeave={() => handleLeave(idx)}
+                      className={`relative block overflow-hidden rounded-full px-4 py-2 text-sm font-medium transition-colors hover:text-white ${
+                        pathname === item.href ? "text-white" : "text-emerald-800"
+                      }`}
+                    >
+                      {/* Static active background pill */}
+                      {pathname === item.href && (
+                        <span
+                          className="absolute inset-0 -z-10 rounded-full bg-green-600"
+                          aria-hidden="true"
+                        />
+                      )}
 
-          {/* Desktop Nav */}
-          <nav
-            ref={navItemsRef}
-            className="relative hidden rounded-full bg-green-600/10 p-1 shadow-inner sm:block"
-            aria-label="Primary"
+                      {/* Expanding circle (pill) */}
+                      <span
+                        ref={(el) => (circleRefs.current[idx] = el)}
+                        className="pointer-events-none absolute left-1/2 top-0 -z-10 rounded-full"
+                        style={{ backgroundColor: pillColor }}
+                        aria-hidden="true"
+                      />
+
+                      {/* Default label (below) */}
+                      <span className="pill-label relative block">{item.label}</span>
+
+                      {/* Hover label (on pill) */}
+                      <span
+                        className="pill-label-hover absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap"
+                        style={{ color: pillTextColor }}
+                      >
+                        {item.label}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <DarkModeToggle />
+
+            {/* Mobile Hamburger */}
+            <button
+              ref={hamburgerRef}
+              onClick={toggleMobileMenu}
+              className="sm:hidden inline-flex flex-col items-center justify-center rounded-md border border-green-200 bg-white p-2 text-emerald-800 shadow-sm"
+              aria-label="Toggle menu"
+            >
+              <span className="hamburger-line block h-0.5 w-5 bg-emerald-800" />
+              <span className="hamburger-line mt-1 block h-0.5 w-5 bg-emerald-800" />
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          <div
+            ref={mobileMenuRef}
+            className="sm:hidden mt-3 rounded-full border border-green-200 bg-white p-2 shadow"
           >
-            <ul className="flex items-center gap-1">
-              {items.map((item, idx) => (
+            <ul className="flex flex-col gap-1">
+              {items.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    onMouseEnter={() => handleEnter(idx)}
-                    onMouseLeave={() => handleLeave(idx)}
-                    className={`relative block overflow-hidden rounded-full px-4 py-2 text-sm font-medium transition-colors hover:text-white ${
-                      pathname === item.href ? "text-white" : "text-emerald-800"
+                    className={`block rounded-full px-3 py-2 text-sm font-medium ${
+                      pathname === item.href
+                        ? "bg-green-600 text-white"
+                        : "text-emerald-800 hover:bg-green-50"
                     }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    {/* Static active background pill */}
-                    {pathname === item.href && (
-                      <span
-                        className="absolute inset-0 -z-10 rounded-full bg-green-600"
-                        aria-hidden="true"
-                      />
-                    )}
-
-                    {/* Expanding circle (pill) */}
-                    <span
-                      ref={(el) => (circleRefs.current[idx] = el)}
-                      className="pointer-events-none absolute left-1/2 top-0 -z-10 rounded-full"
-                      style={{ backgroundColor: pillColor }}
-                      aria-hidden="true"
-                    />
-
-                    {/* Default label (below) */}
-                    <span className="pill-label relative block">{item.label}</span>
-
-                    {/* Hover label (on pill) */}
-                    <span
-                      className="pill-label-hover absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap"
-                      style={{ color: pillTextColor }}
-                    >
-                      {item.label}
-                    </span>
+                    {item.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </nav>
-
-          {/* Mobile Hamburger */}
-          <button
-            ref={hamburgerRef}
-            onClick={toggleMobileMenu}
-            className="sm:hidden inline-flex flex-col items-center justify-center rounded-md border border-green-200 bg-white p-2 text-emerald-800 shadow-sm"
-            aria-label="Toggle menu"
-          >
-            <span className="hamburger-line block h-0.5 w-5 bg-emerald-800" />
-            <span className="hamburger-line mt-1 block h-0.5 w-5 bg-emerald-800" />
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        <div
-          ref={mobileMenuRef}
-          className="sm:hidden mt-3 rounded-full border border-green-200 bg-white p-2 shadow"
-        >
-          <ul className="flex flex-col gap-1">
-            {items.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`block rounded-full px-3 py-2 text-sm font-medium ${
-                    pathname === item.href
-                      ? "bg-green-600 text-white"
-                      : "text-emerald-800 hover:bg-green-50"
-                  }`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          </div>
         </div>
       </div>
     </header>

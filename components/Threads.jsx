@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Renderer, Program, Mesh, Triangle, Color } from 'ogl';
 
 const vertexShader = `
@@ -122,6 +122,24 @@ void main() {
 const Threads = ({ color = [0, 1, 0.5], amplitude = 1, distance = 0, enableMouseInteraction = false, ...rest }) => {
   const containerRef = useRef(null);
   const animationFrameId = useRef();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          setIsDarkMode(document.documentElement.classList.contains('dark'));
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+
+    // Initial check
+    setIsDarkMode(document.documentElement.classList.contains('dark'));
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -129,7 +147,7 @@ const Threads = ({ color = [0, 1, 0.5], amplitude = 1, distance = 0, enableMouse
 
     const renderer = new Renderer({ alpha: true });
     const gl = renderer.gl;
-    gl.clearColor(0.9, 1.0, 0.9, 0);
+    
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     container.appendChild(gl.canvas);
@@ -180,6 +198,13 @@ const Threads = ({ color = [0, 1, 0.5], amplitude = 1, distance = 0, enableMouse
     }
 
     function update(t) {
+      // Set clear color based on current dark mode state
+      if (isDarkMode) {
+        gl.clearColor(0.1, 0.2, 0.2, 0); // Dark green/blue/teal with transparency
+      } else {
+        gl.clearColor(0.9, 1.0, 0.9, 0); // Pale light-white green with transparency
+      }
+
       if (enableMouseInteraction) {
         const smoothing = 0.05;
         currentMouse[0] += smoothing * (targetMouse[0] - currentMouse[0]);

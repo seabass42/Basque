@@ -219,7 +219,19 @@ export default function Results() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-2xl font-bold mb-2">Your Community Ranking</h3>
-                <p className="text-green-100">ZIP Code {userRank.zipCode}</p>
+                {locationInfo ? (
+                  <p className="text-green-100 flex items-center gap-2">
+                    <span 
+                      className="px-2 py-1 rounded-full text-white font-bold text-xs"
+                      style={{ backgroundColor: locationInfo.state.color }}
+                    >
+                      {locationInfo.state.abbreviation}
+                    </span>
+                    {locationInfo.displayName} ({userRank.zipCode})
+                  </p>
+                ) : (
+                  <p className="text-green-100">ZIP Code {userRank.zipCode}</p>
+                )}
               </div>
               <div className="text-right">
                 <div className="text-5xl font-bold mb-1">#{userRank.rank}</div>
@@ -246,6 +258,103 @@ export default function Results() {
             </div>
           </div>
         )}
+
+        {/* Carbon Offset Progress Bar - NEW! */}
+<div className="bg-white rounded-3xl shadow-xl p-8">
+  <div className="flex items-center justify-between mb-4">
+    <div>
+      <h3 className="text-2xl font-bold text-green-700">Your Carbon Impact</h3>
+      <p className="text-gray-600 text-sm mt-1">
+        You've offset approximately <span className="font-bold text-green-600">{Math.round(userPoints * 0.5)} kg</span> of CO₂ this year
+      </p>
+    </div>
+    <div className="text-5xl">🌍</div>
+  </div>
+
+  {/* Progress Bar */}
+  <div className="relative">
+    <div className="h-8 bg-gray-200 rounded-full overflow-hidden">
+      <div 
+        className="h-full bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-3"
+        style={{ 
+          width: `${Math.min((userPoints / 1000) * 100, 100)}%`
+        }}
+      >
+        {userPoints > 0 && (
+          <span className="text-white font-bold text-sm">
+            {Math.round((userPoints / 1000) * 100)}%
+          </span>
+        )}
+      </div>
+    </div>
+
+    <div className="flex justify-between mt-2 text-xs text-gray-500">
+      <span>0 kg</span>
+      <span className="text-gray-400">250 kg</span>
+      <span className="font-semibold text-green-600">500 kg (Goal)</span>
+    </div>
+  </div>
+
+  {/* Impact equivalents */}
+  <div className="grid grid-cols-3 gap-4 mt-6">
+    <div className="text-center p-4 bg-green-50 rounded-xl">
+      <div className="text-2xl mb-1">🚗</div>
+      <div className="text-2xl font-bold text-green-600">
+        {Math.round(userPoints * 0.5 / 0.4)}
+      </div>
+      <div className="text-xs text-gray-600">miles not driven</div>
+    </div>
+    
+    <div className="text-center p-4 bg-blue-50 rounded-xl">
+      <div className="text-2xl mb-1">🌲</div>
+      <div className="text-2xl font-bold text-blue-600">
+        {Math.round(userPoints * 0.5 / 21)}
+      </div>
+      <div className="text-xs text-gray-600">trees planted equivalent</div>
+    </div>
+    
+    <div className="text-center p-4 bg-purple-50 rounded-xl">
+      <div className="text-2xl mb-1">💡</div>
+      <div className="text-2xl font-bold text-purple-600">
+        {Math.round(userPoints * 0.5 / 0.5)}
+      </div>
+      <div className="text-xs text-gray-600">light bulbs switched</div>
+    </div>
+  </div>
+
+  {/* Next milestone */}
+  {userPoints < 1000 && (
+    <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-2 border-yellow-200">
+      <div className="flex items-center gap-3">
+        <div className="text-3xl">🎯</div>
+        <div className="flex-1">
+          <div className="font-semibold text-gray-800">
+            Next Milestone: {Math.round((1000 - userPoints) / 100) * 100} points away
+          </div>
+          <div className="text-sm text-gray-600">
+            Complete {Math.ceil((1000 - userPoints) / 100)} more actions to reach 500kg offset!
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {userPoints >= 1000 && (
+    <div className="mt-4 p-4 bg-gradient-to-r from-green-100 to-emerald-100 rounded-xl border-2 border-green-300">
+      <div className="flex items-center gap-3">
+        <div className="text-3xl">🎉</div>
+        <div className="flex-1">
+          <div className="font-bold text-green-700 text-lg">
+            Goal Achieved! You're a Climate Champion!
+          </div>
+          <div className="text-sm text-green-600">
+            You've offset 500kg of CO₂ - that's incredible!
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
 
         {/* Actionable Tasks Section */}
         {tasks.length > 0 && (

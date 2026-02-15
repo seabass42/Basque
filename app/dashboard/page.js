@@ -8,6 +8,7 @@ export default function Dashboard() {
   const [userRank, setUserRank] = useState(null)
   const [loading, setLoading] = useState(true)
   const [zipCode, setZipCode] = useState(null)
+  const [locationInfo, setLocationInfo] = useState(null)
 
   useEffect(() => {
     fetchDashboardData()
@@ -29,6 +30,15 @@ export default function Dashboard() {
       if (statsData.success) {
         setUserStats(statsData.stats)
         setZipCode(statsData.stats.zipCode)
+        try {
+              const zipResponse = await fetch(`/api/zipcode-lookup?zip=${statsData.stats.zipCode}`)
+              const zipData = await zipResponse.json()
+              if (zipData.success) {
+                setLocationInfo(zipData)
+              }
+            } catch (error) {
+              console.error('Error fetching location:', error)
+            }
 
         // Fetch leaderboard rank
         if (statsData.stats.zipCode) {
@@ -93,7 +103,19 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-2xl font-bold mb-2">Your Community Ranking</h3>
+                {locationInfo ? (
+                <p className="text-green-100 flex items-center gap-2">
+                  <span
+                    className="px-2 py-1 rounded-full text-white font-bold text-xs"
+                    style={{ backgroundColor: locationInfo.state.color }}
+                  >
+                    {locationInfo.state.abbreviation}
+                  </span>
+                  {locationInfo.displayName} ({userRank.zipCode})
+                </p>
+              ) : (
                 <p className="text-green-100">ZIP Code {userRank.zipCode}</p>
+              )}
               </div>
               <div className="text-right">
                 <div className="text-5xl font-bold mb-1">#{userRank.rank}</div>

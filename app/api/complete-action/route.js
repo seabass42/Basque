@@ -34,13 +34,13 @@ export async function POST(request) {
     console.log(`📋 Action: "${recommendation.title}" worth ${recommendation.pointValue} points`)
 
     // STEP 2: Update the user document
-    // Add actionId to completedActions array AND increment points
+    // Add actionId to completedActions array and increment points
     const result = await db.collection('users').updateOne(
       { _id: new ObjectId(userId) },
       {
-        $push: { completedActions: new ObjectId(actionId) },  // Add to array
-        $inc: { points: recommendation.pointValue },           // Increment points
-        $set: { updatedAt: new Date() }                       // Update timestamp
+        $push: { completedActions: new ObjectId(actionId) },  
+        $inc: { points: recommendation.pointValue },           
+        $set: { updatedAt: new Date() }                       
       }
     )
 

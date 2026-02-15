@@ -46,16 +46,16 @@ export default function MapPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-transparent">
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Hero Section */}
         <div className="text-center mb-8 border-2 border-green-600 rounded-xl">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl font-bold text-green-600 mb-4">
             Climate Action Across America
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-xl text-green-600 max-w-3xl mx-auto">
             See how communities nationwide are competing to reduce their carbon footprint. 
             Larger markers = higher average points. Click any marker to explore!
           </p>

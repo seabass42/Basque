@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ChatWidget from "@/components/ChatWidget";
 import PillNav from "@/components/PillNav";
+import Threads from "@/components/Threads";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,12 +22,17 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <PillNav />
-        {children}
-        <ChatWidget />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased relative` }>
+        {/* Fixed decorative background for all pages */}
+        <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
+          <Threads amplitude={1} distance={0.8} enableMouseInteraction={false} style={{ width: '100%', height: '100%', position: 'relative' }} />
+        </div>
+        {/* Foreground app content */}
+        <div className="relative z-0">
+          <PillNav />
+          {children}
+          <ChatWidget />
+        </div>
       </body>
     </html>
   );

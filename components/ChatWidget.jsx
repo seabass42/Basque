@@ -80,7 +80,7 @@ export default function ChatWidget() {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 rounded-xl bg-white text-gray-800 shadow-2xl border border-gray-200 overflow-hidden">
+        <div className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 rounded-3xl bg-white text-gray-800 shadow-2xl border border-gray-200 overflow-hidden">
           <div className="flex items-center justify-between bg-green-600 text-white px-4 py-3">
             <div className="font-semibold">Basque Assistant</div>
             <button
@@ -103,32 +103,39 @@ export default function ChatWidget() {
             </button>
           </div>
 
-          <div className="max-h-80 overflow-y-auto p-4 space-y-3 bg-gray-50">
+          {/* Messages area styled like a mobile texting app */}
+          <div className="max-h-80 overflow-y-auto p-3 space-y-2 bg-gray-50">
             {messages.map((m, idx) => (
-              <div
-                key={idx}
-                className={`${m.role === 'assistant' ? 'bg-white' : 'bg-green-100'} rounded-lg p-3 text-sm shadow border border-gray-200`}
-              >
-                {m.content}
+              <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div
+                  className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm shadow-sm border ${
+                    m.role === 'user'
+                      ? 'bg-green-600 text-white border-green-600 rounded-br-sm'
+                      : 'bg-white text-gray-800 border-gray-200 rounded-bl-sm'
+                  }`}
+                >
+                  {m.content}
+                </div>
               </div>
             ))}
             <div ref={endRef} />
           </div>
 
+          {/* Input area */}
           <div className="border-t border-gray-200 p-3 bg-white">
-            <div className="flex items-center gap-2">
+            <div className="flex items-end gap-2">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
                 rows={2}
-                placeholder="Ask about climate actions, recommendations, or how this works..."
-                className="flex-1 resize-none rounded-lg border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Message Basque Assistant"
+                className="flex-1 resize-none rounded-2xl border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               />
               <button
                 onClick={sendMessage}
                 disabled={sending}
-                className="px-4 py-2 rounded-lg bg-green-600 text-white disabled:opacity-50 hover:bg-green-700"
+                className="px-4 py-2 rounded-2xl bg-green-600 text-white disabled:opacity-50 hover:bg-green-700"
               >
                 Send
               </button>

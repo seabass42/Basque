@@ -208,7 +208,7 @@ export default function Quiz() {
 
   // STEP 9: Render the UI
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+    <div className="min-h-screen">
       
       {/* Top Bar */}
       <div className="bg-green-700 py-4 px-6 shadow-md">

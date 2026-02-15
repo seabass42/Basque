@@ -184,7 +184,7 @@ export default function Results() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your results...</p>
@@ -195,7 +195,7 @@ export default function Results() {
 
   if (!answers) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center px-6">
+      <div className="min-h-screen flex items-center justify-center px-6">
         <div className="bg-white rounded-3xl shadow-xl p-10 max-w-2xl w-full text-center">
           <h1 className="text-3xl font-bold text-green-700 mb-4">No Results Yet</h1>
           <p className="text-gray-700 mb-6">Please take the quiz to generate personalized recommendations.</p>
@@ -208,8 +208,24 @@ export default function Results() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
-
+    <div className="min-h-screen">
+      <div className="bg-green-700 py-4 px-6 shadow-md">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <h2 className="text-white text-lg font-semibold">
+            Basque - Your Personalized Results
+          </h2>
+          <div className="flex items-center gap-4">
+            <div className="text-white font-semibold">
+              🏆 {userPoints} points
+            </div>
+            <Link href="/dashboard">
+              <button className="px-4 py-2 bg-white text-green-700 rounded-lg hover:bg-green-50 transition font-medium">
+                View Dashboard
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
         

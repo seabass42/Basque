@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+// Threads background moved to global layout
 
 export default function Dashboard() {
   const [userStats, setUserStats] = useState(null)
@@ -74,9 +75,20 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+    <div className="relative min-h-screen bg-gradient-to-br from-green-50 to-white">
+       {/* Header */}
+       <div className="bg-green-700 py-4 px-6 shadow-md">
+         <div className="max-w-6xl mx-auto flex justify-between items-center">
+           <h2 className="text-white text-lg font-semibold">
+             Basque - Your Dashboard
+           </h2>
+           <div className="text-white font-semibold">
+             🏆 {userStats.totalPoints} points
+           </div>
+         </div>
+       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
         
         {/* Back Button */}
         <div>

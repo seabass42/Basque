@@ -235,7 +235,8 @@ export default function PillNav() {
           {/* Logo */}
           <div ref={logoRef} className="flex items-center gap-2 select-none">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-white font-bold">
-              B
+            
+              🌳
             </span>
             <span className="text-lg font-semibold text-emerald-800">Basque</span>
           </div>

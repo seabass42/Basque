@@ -8,11 +8,20 @@ export default function ChatWidget() {
   ])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
+  const [userId, setUserId] = useState(null) // State to store userId
   const endRef = useRef(null)
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, open])
+
+  useEffect(() => {
+    // Retrieve userId from localStorage when component mounts
+    const storedUserId = localStorage.getItem('basque_user_id')
+    if (storedUserId) {
+      setUserId(storedUserId)
+    }
+  }, [])
 
   const sendMessage = async () => {
     const trimmed = input.trim()
@@ -27,7 +36,7 @@ export default function ChatWidget() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: nextMessages })
+        body: JSON.stringify({ messages: nextMessages, userId: userId }) // Include userId
       })
 
       const data = await res.json()

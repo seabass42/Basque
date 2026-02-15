@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { ObjectId } from 'mongodb'
+import clientPromise from '@/lib/mongodb'
 
 // System prompt for Basque
 const SYSTEM_PROMPT = `
@@ -46,7 +48,25 @@ export async function POST(request) {
     const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY
     const isDev = process.env.NODE_ENV !== 'production'
 
-    const { messages, prompt } = await request.json()
+    const { messages, prompt, userId } = await request.json()
+    let userZipCode = null
+
+    if (userId) {
+      const client = await clientPromise
+      const db = client.db('basque')
+      const user = await db.collection('users').findOne({ _id: new ObjectId(userId) })
+      if (user && user.zipCode) {
+        userZipCode = user.zipCode
+      }
+    }
+
+    let dynamicSystemPrompt = SYSTEM_PROMPT
+    if (userZipCode) {
+      dynamicSystemPrompt += `\n\nUser's current location (ZIP code): ${userZipCode}. Do NOT ask for their ZIP code.`
+    } else {
+      dynamicSystemPrompt += `\n\nIf you don't know the user's location, politely ask for their ZIP code first.`
+    }
+
     const userPrompt =
       prompt ||
       (Array.isArray(messages)
@@ -61,7 +81,7 @@ export async function POST(request) {
     }
 
     // Compose final prompt with system instructions
-    const finalPrompt = `${SYSTEM_PROMPT}\n\nConversation so far:\n${userPrompt}\n\nRespond as Basque following the style and rules above.`
+    const finalPrompt = `${dynamicSystemPrompt}\n\nConversation so far:\n${userPrompt}\n\nRespond as Basque following the style and rules above.`
 
     // Developer-friendly mock mode when no API key is provided
     if (!apiKey) {
@@ -97,7 +117,7 @@ export async function POST(request) {
       try {
         const response = await ai.models.generateContent({
           model: modelName,
-          contents: `System:\n${SYSTEM_PROMPT}\n\nUser:\n${userPrompt}`
+          contents: `System:\n${dynamicSystemPrompt}\n\nUser:\n${userPrompt}`
         })
         const text = response?.text
         if (text && text.trim()) {

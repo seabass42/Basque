@@ -280,7 +280,7 @@ export default function Results() {
                   <div className="text-sm text-green-100">Top User</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{userPoints.totalPoints}</div>
+                  <div className="text-2xl font-bold">{userPoints}</div>
                   <div className="text-sm text-green-100">🏆 Your Points</div>
                 </div>
               </div>

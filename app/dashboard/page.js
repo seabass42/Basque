@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+// Threads background moved to global layout
 
 export default function Dashboard() {
   const [userStats, setUserStats] = useState(null)
@@ -58,7 +59,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center card">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your dashboard...</p>
@@ -69,8 +70,8 @@ export default function Dashboard() {
 
   if (!userStats) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center px-6">
-        <div className="bg-white rounded-3xl shadow-xl p-10 max-w-2xl w-full text-center">
+      <div className="min-h-screen flex items-center justify-center px-6 card">
+        <div className="rounded-3xl shadow-xl p-10 max-w-2xl w-full text-center card">
           <h1 className="text-3xl font-bold text-green-700 mb-4">No Data Yet</h1>
           <p className="text-gray-700 mb-6">Take the quiz to see your dashboard.</p>
           <Link href="/quiz">
@@ -84,9 +85,20 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+    <div className="relative min-h-screen card">
+       {/* Header */}
+       <div className="bg-green-700 py-4 px-6 shadow-md">
+         <div className="max-w-6xl mx-auto flex justify-between items-center">
+           <h2 className="text-white text-lg font-semibold">
+             Basque - Your Dashboard
+           </h2>
+           <div className="text-white font-semibold">
+             🏆 {userStats.totalPoints} points
+           </div>
+         </div>
+       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
         
         {/* Back Button */}
         <div>
@@ -99,7 +111,7 @@ export default function Dashboard() {
 
         {/* Community Rank Card */}
         {userRank && (
-          <div className="bg-gradient-to-r from-green-600 to-green-500 rounded-3xl shadow-xl p-6 text-white">
+          <div className="rounded-3xl shadow-xl p-6 text-white card">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-2xl font-bold mb-2">Your Community Ranking</h3>
@@ -119,7 +131,7 @@ export default function Dashboard() {
               </div>
               <div className="text-right">
                 <div className="text-5xl font-bold mb-1">#{userRank.rank}</div>
-                <p className="text-green-100">{userRank.avgPoints} avg points</p>
+                <p className="text-green-100">avg points</p>
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-green-400 grid grid-cols-4 gap-4 text-center">
@@ -144,12 +156,12 @@ export default function Dashboard() {
         )}
 
         {/* Impact by Category - Full Width */}
-        <div className="bg-white rounded-3xl shadow-xl p-8">
+        <div className="rounded-3xl shadow-xl p-8 card">
           <h3 className="text-2xl font-bold text-green-700 mb-6">Your Impact by Category</h3>
           {userStats.statsByCategory.length > 0 ? (
             <div className="grid md:grid-cols-4 gap-6">
               {userStats.statsByCategory.map((cat) => (
-                <div key={cat.category} className="text-center p-6 bg-green-50 rounded-2xl">
+                <div key={cat.category} className="text-center p-6 rounded-2xl card">
                   <div className="text-3xl mb-2">
                     {cat.category === 'transportation' ? '🚗' :
                      cat.category === 'diet' ? '🥗' :
@@ -185,11 +197,11 @@ export default function Dashboard() {
         <div className="grid md:grid-cols-2 gap-6">
           
           {/* Community Comparison */}
-          <div className="bg-white rounded-3xl shadow-xl p-8">
+          <div className="rounded-3xl shadow-xl p-8 card">
             <h3 className="text-2xl font-bold text-green-700 mb-6">vs. Your Community</h3>
             <div className="space-y-6">
               
-              <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
+              <div className="p-6 rounded-2xl card">
                 <div className="text-sm text-gray-600 mb-2">Your Points</div>
                 <div className="text-5xl font-bold text-green-600 mb-3">
                   {userStats.totalPoints}
@@ -210,7 +222,7 @@ export default function Dashboard() {
                 </div>
               </div>
               
-              <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl">
+              <div className="p-6 rounded-2xl card">
                 <div className="text-sm text-gray-600 mb-2">Actions Completed</div>
                 <div className="text-5xl font-bold text-blue-600 mb-3">
                   {userStats.totalActions}
@@ -227,7 +239,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl">
+              <div className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl card">
                 <div>
                   <div className="text-sm text-gray-500">Community Size</div>
                   <div className="text-2xl font-bold text-gray-800">
@@ -240,12 +252,12 @@ export default function Dashboard() {
           </div>
 
           {/* Recent Actions */}
-          <div className="bg-white rounded-3xl shadow-xl p-8">
+          <div className="rounded-3xl shadow-xl p-8 card">
             <h3 className="text-2xl font-bold text-green-700 mb-6">Recent Actions</h3>
             {userStats.actionHistory.length > 0 ? (
               <div className="space-y-4">
                 {userStats.actionHistory.slice(0, 6).map((action, i) => (
-                  <div key={i} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-green-50 transition">
+                  <div key={i} className="flex items-start gap-4 p-4 rounded-xl hover:bg-green-50 transition card">
                     <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-xl">
                       {action.category === 'transportation' ? '🚗' :
                        action.category === 'diet' ? '🥗' :
@@ -284,7 +296,7 @@ export default function Dashboard() {
         </div>
 
         {/* Call to Action */}
-        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-3xl shadow-xl p-8 text-white text-center">
+        <div className="rounded-3xl shadow-xl p-8 text-white text-center card">
           <h3 className="text-2xl font-bold mb-4">Ready to Take More Action?</h3>
           <p className="text-green-100 mb-6">
             Complete personalized climate actions to boost your score and help your community climb the leaderboard!

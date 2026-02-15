@@ -48,6 +48,7 @@ export default function Results() {
   const [tasks, setTasks] = useState([])
   const [userPoints, setUserPoints] = useState(0)
   const [completingTask, setCompletingTask] = useState(null)
+  const [userStats, setUserStats] = useState(null)
 
   useEffect(() => {
     fetchData()
@@ -55,6 +56,16 @@ export default function Results() {
 
   async function fetchData() {
     const userId = localStorage.getItem('basque_user_id')
+    try {
+      const statsResponse = await fetch(`/api/user-stats?userId=${userId}`)
+      const statsData = await statsResponse.json()
+      if (statsData.success) {
+        setUserStats(statsData.stats)
+        console.log('Stats loaded')
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+    }
     
     if (userId) {
       try {
@@ -144,46 +155,58 @@ export default function Results() {
   }
 
   async function handleCompleteTask(taskId, pointValue) {
-    const userId = localStorage.getItem('basque_user_id')
-    setCompletingTask(taskId)
+  const userId = localStorage.getItem('basque_user_id')
+  setCompletingTask(taskId)
 
-    try {
-      const response = await fetch('/api/complete-action', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, actionId: taskId })
-      })
+  try {
+    const response = await fetch('/api/complete-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, actionId: taskId })
+    })
 
-      const data = await response.json()
+    const data = await response.json()
 
-      if (response.ok && data.success) {
-        // Remove completed task from list
-        setTasks(prev => prev.filter(t => t.id !== taskId))
-        
-        // Update user points
-        setUserPoints(data.newPoints)
+    if (response.ok && data.success) {
+      // Remove completed task from list
+      setTasks(prev => prev.filter(t => t.id !== taskId))
+      
+      // Update user points
+      setUserPoints(data.newPoints)
 
-        // Refresh leaderboard to show new rankings
-        if (answers?.zipCode) {
-          const leaderboardResponse = await fetch(`/api/leaderboard?zipCode=${answers.zipCode}`)
-          const leaderboardData = await leaderboardResponse.json()
-          if (leaderboardData.success) {
-            setLeaderboard(leaderboardData.leaderboard.slice(0, 10))
-            setUserRank(leaderboardData.userRank)
-          }
+      // Refresh leaderboard
+      if (answers?.zipCode) {
+        const leaderboardResponse = await fetch(`/api/leaderboard?zipCode=${answers.zipCode}`)
+        const leaderboardData = await leaderboardResponse.json()
+        if (leaderboardData.success) {
+          setLeaderboard(leaderboardData.leaderboard.slice(0, 10))
+          setUserRank(leaderboardData.userRank)
         }
-
-        console.log('Task completed! New points:', data.newPoints)
-      } else {
-        alert('Failed to complete task: ' + data.error)
       }
-    } catch (error) {
-      console.error('Error completing task:', error)
-      alert('Failed to complete task')
-    } finally {
-      setCompletingTask(null)
+
+      // ✨ NEW: Refresh user statistics
+      try {
+        const statsResponse = await fetch(`/api/user-stats?userId=${userId}`)
+        const statsData = await statsResponse.json()
+        if (statsData.success) {
+          setUserStats(statsData.stats)
+          console.log('Stats refreshed after completing task')
+        }
+      } catch (error) {
+        console.error('Error refreshing stats:', error)
+      }
+
+      console.log('Task completed! New points:', data.newPoints)
+    } else {
+      alert('Failed to complete task: ' + data.error)
     }
+  } catch (error) {
+    console.error('Error completing task:', error)
+    alert('Failed to complete task')
+  } finally {
+    setCompletingTask(null)
   }
+}
 
   const score = useMemo(() => answers ? computeScore(answers) : 0, [answers])
 
@@ -257,6 +280,147 @@ export default function Results() {
           </div>
         )}
 
+        {/* User Statistics - Improved Layout */}
+{userStats && (
+  <div className="space-y-6">
+    
+    {/* Impact by Category - Full Width */}
+    <div className="bg-white rounded-3xl shadow-xl p-8">
+      <h3 className="text-2xl font-bold text-green-700 mb-6">Your Impact by Category</h3>
+      {userStats.statsByCategory.length > 0 ? (
+        <div className="grid md:grid-cols-4 gap-6">
+          {userStats.statsByCategory.map((cat) => (
+            <div key={cat.category} className="text-center p-6 bg-green-50 rounded-2xl">
+              <div className="text-3xl mb-2">
+                {cat.category === 'transportation' ? '🚗' :
+                 cat.category === 'diet' ? '🥗' :
+                 cat.category === 'energy' ? '⚡' :
+                 cat.category === 'water' ? '💧' :
+                 cat.category === 'shopping' ? '🛍️' : '🌱'}
+              </div>
+              <div className="font-semibold text-gray-800 capitalize text-lg mb-1">
+                {cat.category}
+              </div>
+              <div className="text-3xl font-bold text-green-600 mb-1">
+                {cat.totalPoints}
+              </div>
+              <div className="text-sm text-gray-500">
+                {cat.count} action{cat.count !== 1 ? 's' : ''}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg mb-4">Complete actions to see your impact!</p>
+          <p className="text-gray-400">Scroll down to the "Take Action" section</p>
+        </div>
+      )}
+    </div>
+
+    {/* Community Comparison & Recent Actions - Side by Side */}
+    <div className="grid md:grid-cols-2 gap-6">
+      
+      {/* Community Comparison */}
+      <div className="bg-white rounded-3xl shadow-xl p-8">
+        <h3 className="text-2xl font-bold text-green-700 mb-6">vs. Your Community</h3>
+        <div className="space-y-6">
+          
+          {/* Your Points */}
+          <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
+            <div className="text-sm text-gray-600 mb-2">Your Points</div>
+            <div className="text-5xl font-bold text-green-600 mb-3">
+              {userStats.totalPoints}
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                Community Avg: {Math.round(userStats.communityComparison.avgPoints)}
+              </div>
+              {userStats.totalPoints > userStats.communityComparison.avgPoints ? (
+                <div className="text-green-600 font-bold">
+                  ↑ {Math.round(((userStats.totalPoints / userStats.communityComparison.avgPoints) - 1) * 100)}%
+                </div>
+              ) : userStats.totalPoints === 0 ? (
+                <div className="text-gray-500 text-sm">Start now!</div>
+              ) : (
+                <div className="text-gray-500 text-sm">Keep going!</div>
+              )}
+            </div>
+          </div>
+          
+          {/* Actions Completed */}
+          <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl">
+            <div className="text-sm text-gray-600 mb-2">Actions Completed</div>
+            <div className="text-5xl font-bold text-blue-600 mb-3">
+              {userStats.totalActions}
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                Community Avg: {Math.round(userStats.communityComparison.avgActions)}
+              </div>
+              {userStats.totalActions > userStats.communityComparison.avgActions && (
+                <div className="text-blue-600 font-bold">
+                  ↑ Above avg!
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Community Size */}
+          <div className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl">
+            <div>
+              <div className="text-sm text-gray-500">Community Size</div>
+              <div className="text-2xl font-bold text-gray-800">
+                {userStats.communityComparison.totalUsers} users
+              </div>
+            </div>
+            <div className="text-3xl">👥</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Actions */}
+      <div className="bg-white rounded-3xl shadow-xl p-8">
+        <h3 className="text-2xl font-bold text-green-700 mb-6">Recent Actions</h3>
+        {userStats.actionHistory.length > 0 ? (
+          <div className="space-y-4">
+            {userStats.actionHistory.slice(0, 6).map((action, i) => (
+              <div key={i} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-green-50 transition">
+                <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-xl">
+                  {action.category === 'transportation' ? '🚗' :
+                   action.category === 'diet' ? '🥗' :
+                   action.category === 'energy' ? '⚡' :
+                   action.category === 'water' ? '💧' :
+                   action.category === 'shopping' ? '🛍️' : '🌱'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-gray-800 mb-1">
+                    {action.title}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500 capitalize">
+                      {action.category}
+                    </span>
+                    <span className="text-green-600 font-bold">
+                      +{action.pointValue} pts
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🎯</div>
+            <p className="text-gray-500 text-lg mb-2">No actions completed yet</p>
+            <p className="text-gray-400">Start earning points below!</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
         {/* Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
@@ -308,7 +472,7 @@ export default function Results() {
                'A fresh start - the suggestions below will help you begin strong.'}
             </div>
           </div>
-
+          
           {/* Top Communities Leaderboard */}
           {leaderboard.length > 0 && (
             <div className="lg:col-span-3 bg-white rounded-3xl shadow-xl p-8">
@@ -375,6 +539,8 @@ export default function Results() {
               </div>
             </div>
           )}
+
+          
 
           {/* Actionable Tasks Section */}
         {tasks.length > 0 && (

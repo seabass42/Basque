@@ -14,6 +14,7 @@ export default function PillNav() {
     { label: "Learn", href: "/learn-more" },
     { label: "Quiz", href: "/quiz" },
     { label: "Results", href: "/results" },
+    { label: "Dashboard", href: "/dashboard"}
   ];
 
   let activeIndex = items.findIndex((i) => i.href === pathname);

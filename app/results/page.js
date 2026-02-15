@@ -209,23 +209,7 @@ export default function Results() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
-      <div className="bg-green-700 py-4 px-6 shadow-md">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h2 className="text-white text-lg font-semibold">
-            Basque - Your Personalized Results
-          </h2>
-          <div className="flex items-center gap-4">
-            <div className="text-white font-semibold">
-              🏆 {userPoints} points
-            </div>
-            <Link href="/dashboard">
-              <button className="px-4 py-2 bg-white text-green-700 rounded-lg hover:bg-green-50 transition font-medium">
-                View Dashboard
-              </button>
-            </Link>
-          </div>
-        </div>
-      </div>
+
 
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
         
@@ -242,7 +226,7 @@ export default function Results() {
                 <p className="text-green-100">{userRank.avgPoints} avg points</p>
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-green-400 grid grid-cols-3 gap-4 text-center">
+            <div className="mt-4 pt-4 border-t border-green-400 grid grid-cols-4 gap-4 text-center">
               <div>
                 <div className="text-2xl font-bold">{userRank.userCount}</div>
                 <div className="text-sm text-green-100">Active Users</div>
@@ -254,6 +238,10 @@ export default function Results() {
               <div>
                 <div className="text-2xl font-bold">{userRank.topScore}</div>
                 <div className="text-sm text-green-100">Top User</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold">{userPoints}</div>
+                <div className="text-sm text-green-100">🏆 Your Points</div>
               </div>
             </div>
           </div>

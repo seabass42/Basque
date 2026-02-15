@@ -75,17 +75,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
-      {/* Header */}
-      <div className="bg-green-700 py-4 px-6 shadow-md">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h2 className="text-white text-lg font-semibold">
-            Basque - Your Dashboard
-          </h2>
-          <div className="text-white font-semibold">
-            🏆 {userStats.totalPoints} points
-          </div>
-        </div>
-      </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
         
@@ -111,7 +100,7 @@ export default function Dashboard() {
                 <p className="text-green-100">{userRank.avgPoints} avg points</p>
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-green-400 grid grid-cols-3 gap-4 text-center">
+            <div className="mt-4 pt-4 border-t border-green-400 grid grid-cols-4 gap-4 text-center">
               <div>
                 <div className="text-2xl font-bold">{userRank.userCount}</div>
                 <div className="text-sm text-green-100">Active Users</div>
@@ -123,6 +112,10 @@ export default function Dashboard() {
               <div>
                 <div className="text-2xl font-bold">{userRank.topScore}</div>
                 <div className="text-sm text-green-100">Top User</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold">{userStats.totalPoints}</div>
+                <div className="text-sm text-green-100">🏆 Your Points</div>
               </div>
             </div>
           </div>

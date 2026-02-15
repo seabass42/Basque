@@ -72,9 +72,9 @@ export default function Dashboard() {
   if (!userStats) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6 card">
-        <div className="rounded-3xl shadow-xl p-10 max-w-2xl w-full text-center card">
-          <h1 className="text-3xl font-bold text-green-700 mb-4">No Data Yet</h1>
-          <p className="text-gray-700 mb-6">Take the quiz to see your dashboard.</p>
+        <div className="rounded-3xl shadow-xl p-10 max-w-2xl w-full text-center bg-card-background card">
+          <h1 className="text-3xl font-bold text-default-foreground mb-4">No Data Yet</h1>
+          <p className="text-default-foreground mb-6">Take the quiz to see your dashboard.</p>
           <Link href="/quiz">
             <button className="px-6 py-3 bg-green-600 text-white rounded-2xl shadow-md hover:bg-green-700 transition">
               Take Quiz
@@ -102,7 +102,7 @@ export default function Dashboard() {
 
         {/* Community Rank Card */}
         {userRank && (
-          <div className="relative rounded-3xl shadow-xl p-6 bg-transparent relative overflow-hidden text-default-foreground">
+          <div className="relative rounded-3xl shadow-xl p-6 bg-transparent relative overflow-hidden card">
             <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
               <Grainient
                 color1="#46a058"
@@ -132,7 +132,7 @@ export default function Dashboard() {
             <div className="relative z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">Your Community Ranking</h3>
+                  <h3 className="text-2xl font-bold mb-2 text-white">Your Community Ranking</h3>
                   {locationInfo ? (
                   <p className="flex items-center gap-2">
                     <span
@@ -149,25 +149,25 @@ export default function Dashboard() {
                 </div>
                 <div className="text-right">
                   <div className="text-5xl font-bold mb-1">#{userRank.rank}</div>
-                  <p>avg points</p>
+                  <p className="text-white">avg points</p>
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-green-400 grid grid-cols-4 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-bold">{userRank.userCount}</div>
-                  <div className="text-sm">Active Users</div>
+                  <div className="text-2xl font-bold text-white">{userRank.userCount}</div>
+                  <div className="text-sm text-white">Active Users</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{userRank.totalPoints}</div>
-                  <div className="text-sm">Total Points</div>
+                  <div className="text-2xl font-bold text-white">{userRank.totalPoints}</div>
+                  <div className="text-sm text-white">Total Points</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{userRank.topScore}</div>
-                  <div className="text-sm">Top User</div>
+                  <div className="text-2xl font-bold text-white">{userRank.topScore}</div>
+                  <div className="text-sm text-white">Top User</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{userStats.totalPoints}</div>
-                  <div className="text-sm">🏆 Your Points</div>
+                  <div className="text-2xl font-bold text-white">{userStats.totalPoints}</div>
+                  <div className="text-sm text-white">🏆 Your Points</div>
                 </div>
               </div>
             </div>
@@ -176,11 +176,11 @@ export default function Dashboard() {
 
         {/* Impact by Category - Full Width */}
         <div className="rounded-3xl shadow-xl p-8 bg-card-background">
-          <h3 className="text-2xl font-bold text-green-700 mb-6">Your Impact by Category</h3>
+          <h3 className="text-2xl font-bold text-default-foreground mb-6">Your Impact by Category</h3>
           {userStats.statsByCategory.length > 0 ? (
             <div className="grid md:grid-cols-4 gap-6">
               {userStats.statsByCategory.map((cat) => (
-                <div key={cat.category} className="text-center p-6 rounded-2xl card">
+                <div key={cat.category} className="text-center p-6 rounded-2xl bg-card-background card">
                   <div className="text-3xl mb-2">
                     {cat.category === 'transportation' ? '🚗' :
                      cat.category === 'diet' ? '🥗' :
@@ -188,7 +188,7 @@ export default function Dashboard() {
                      cat.category === 'water' ? '💧' :
                      cat.category === 'shopping' ? '🛍️' : '🌱'}
                   </div>
-                  <div className="font-semibold text-gray-800 capitalize text-lg mb-1">
+                  <div className="font-semibold text-default-foreground capitalize text-lg mb-1">
                     {cat.category}
                   </div>
                   <div className="text-3xl font-bold text-green-600 mb-1">
@@ -202,7 +202,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg mb-4">Complete actions to see your impact!</p>
+              <p className="text-default-foreground text-lg mb-4">Complete actions to see your impact!</p>
               <Link href="/results">
                 <button className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition">
                   Go to Actions
@@ -216,17 +216,17 @@ export default function Dashboard() {
         <div className="grid md:grid-cols-2 gap-6">
           
           {/* Community Comparison */}
-          <div className="rounded-3xl shadow-xl p-8 bg-transparent">
-            <h3 className="text-2xl font-bold text-green-700 mb-6">vs. Your Community</h3>
+          <div className="rounded-3xl shadow-xl p-8 bg-card-background">
+            <h3 className="text-2xl font-bold text-default-foreground mb-6">vs. Your Community</h3>
             <div className="space-y-6">
               
-              <div className="p-6 rounded-2xl card">
-                <div className="text-sm text-gray-600 mb-2">Your Points</div>
+              <div className="p-6 rounded-2xl bg-card-background card">
+                <div className="text-sm text-default-foreground mb-2">Your Points</div>
                 <div className="text-5xl font-bold text-green-600 mb-3">
                   {userStats.totalPoints}
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-default-foreground">
                     Community Avg: {Math.round(userStats.communityComparison.avgPoints)}
                   </div>
                   {userStats.totalPoints > userStats.communityComparison.avgPoints ? (
@@ -241,13 +241,13 @@ export default function Dashboard() {
                 </div>
               </div>
               
-              <div className="p-6 rounded-2xl card">
-                <div className="text-sm text-gray-600 mb-2">Actions Completed</div>
+              <div className="p-6 rounded-2xl bg-card-background card">
+                <div className="text-sm text-default-foreground mb-2">Actions Completed</div>
                 <div className="text-5xl font-bold text-blue-600 mb-3">
                   {userStats.totalActions}
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-default-foreground">
                     Community Avg: {Math.round(userStats.communityComparison.avgActions)}
                   </div>
                   {userStats.totalActions > userStats.communityComparison.avgActions && (
@@ -258,10 +258,10 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl card">
+              <div className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl bg-card-background card">
                 <div>
-                  <div className="text-sm text-gray-500">Community Size</div>
-                  <div className="text-2xl font-bold text-gray-800">
+                  <div className="text-sm text-default-foreground">Community Size</div>
+                  <div className="text-2xl font-bold text-default-foreground">
                     {userStats.communityComparison.totalUsers} users
                   </div>
                 </div>
@@ -271,12 +271,12 @@ export default function Dashboard() {
           </div>
 
           {/* Recent Actions */}
-          <div className="rounded-3xl shadow-xl p-8 card">
-            <h3 className="text-2xl font-bold text-green-700 mb-6">Recent Actions</h3>
+          <div className="rounded-3xl shadow-xl p-8 bg-card-background card">
+            <h3 className="text-2xl font-bold text-default-foreground mb-6">Recent Actions</h3>
             {userStats.actionHistory.length > 0 ? (
               <div className="space-y-4">
                 {userStats.actionHistory.slice(0, 6).map((action, i) => (
-                  <div key={i} className="flex items-start gap-4 p-4 rounded-xl hover:bg-green-50 transition card">
+                  <div key={i} className="flex items-start gap-4 p-4 rounded-xl hover:bg-green-50 transition bg-card-background card">
                     <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-xl">
                       {action.category === 'transportation' ? '🚗' :
                        action.category === 'diet' ? '🥗' :
@@ -285,7 +285,7 @@ export default function Dashboard() {
                        action.category === 'shopping' ? '🛍️' : '🌱'}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-gray-800 mb-1">
+                      <div className="font-semibold text-default-foreground mb-1">
                         {action.title}
                       </div>
                       <div className="flex items-center justify-between">
@@ -303,7 +303,7 @@ export default function Dashboard() {
             ) : (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">🎯</div>
-                <p className="text-gray-500 text-lg mb-2">No actions completed yet</p>
+                <p className="text-default-foreground text-lg mb-2">No actions completed yet</p>
                 <Link href="/results">
                   <button className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition">
                     Start Earning Points
@@ -315,9 +315,9 @@ export default function Dashboard() {
         </div>
 
         {/* Call to Action */}
-        <div className="rounded-3xl shadow-xl p-8 text-white text-center card">
+        <div className="rounded-3xl shadow-xl p-8 text-white text-center bg-card-background card">
           <h3 className="text-2xl font-bold mb-4">Ready to Take More Action?</h3>
-          <p className="text-green-100 mb-6">
+          <p className="text-default-background-100 mb-6">
             Complete personalized climate actions to boost your score and help your community climb the leaderboard!
           </p>
           <Link href="/results">

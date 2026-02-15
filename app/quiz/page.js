@@ -210,12 +210,6 @@ export default function Quiz() {
   return (
     <div className="min-h-screen">
       
-      {/* Top Bar */}
-      <div className="bg-green-700 py-4 px-6 shadow-md">
-        <h2 className="text-white text-lg font-semibold">
-          Basque — Climate Action Quiz
-        </h2>
-      </div>
 
       {/* Progress Bar */}
       <div className="bg-white shadow-sm">
@@ -239,10 +233,10 @@ export default function Quiz() {
 
       {/* Question Area */}
       <div className="flex items-center justify-center px-6 py-12">
-        <div className="bg-white rounded-3xl shadow-xl p-10 max-w-2xl w-full">
+        <div className="bg-card-background rounded-3xl shadow-xl p-10 max-w-2xl w-full card">
           
           {/* Question Title */}
-          <h1 className="text-3xl font-bold text-green-700 mb-8">
+          <h1 className="text-3xl font-bold text-default-foreground mb-8">
             {question.text}
           </h1>
 
@@ -271,7 +265,7 @@ export default function Quiz() {
                       : 'border-gray-200 hover:border-green-300'
                     }`}
                 >
-                  <span className="text-gray-700 font-medium">{option}</span>
+                  <span className="text-default-foreground font-medium">{option}</span>
                 </button>
               ))}
             </div>
@@ -283,7 +277,7 @@ export default function Quiz() {
             {currentStep > 0 && (
               <button
                 onClick={handleBack}
-                className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl 
+                className="flex-1 bg-gray-200 text-default-foreground py-3 rounded-xl 
                            font-semibold hover:bg-gray-300 transition"
               >
                 Back
@@ -297,7 +291,7 @@ export default function Quiz() {
               className={`flex-1 py-3 rounded-xl font-semibold transition shadow-md
                 ${isAnswered
                   ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-300 text-default-foreground cursor-not-allowed'
                 }`}
             >
               {currentStep === questions.length - 1 ? 'Submit' : 'Next'}

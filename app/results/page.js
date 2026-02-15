@@ -48,7 +48,6 @@ export default function Results() {
   const [tasks, setTasks] = useState([])
   const [userPoints, setUserPoints] = useState(0)
   const [completingTask, setCompletingTask] = useState(null)
-  const [userStats, setUserStats] = useState(null)
 
   useEffect(() => {
     fetchData()
@@ -56,16 +55,6 @@ export default function Results() {
 
   async function fetchData() {
     const userId = localStorage.getItem('basque_user_id')
-    try {
-      const statsResponse = await fetch(`/api/user-stats?userId=${userId}`)
-      const statsData = await statsResponse.json()
-      if (statsData.success) {
-        setUserStats(statsData.stats)
-        console.log('Stats loaded')
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error)
-    }
     
     if (userId) {
       try {
@@ -141,7 +130,6 @@ export default function Results() {
       }
     }
 
-    // Fallback to localStorage
     console.log('Falling back to localStorage')
     const stored = localStorage.getItem('basque_answers')
     if (stored) {
@@ -155,58 +143,42 @@ export default function Results() {
   }
 
   async function handleCompleteTask(taskId, pointValue) {
-  const userId = localStorage.getItem('basque_user_id')
-  setCompletingTask(taskId)
+    const userId = localStorage.getItem('basque_user_id')
+    setCompletingTask(taskId)
 
-  try {
-    const response = await fetch('/api/complete-action', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, actionId: taskId })
-    })
+    try {
+      const response = await fetch('/api/complete-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, actionId: taskId })
+      })
 
-    const data = await response.json()
+      const data = await response.json()
 
-    if (response.ok && data.success) {
-      // Remove completed task from list
-      setTasks(prev => prev.filter(t => t.id !== taskId))
-      
-      // Update user points
-      setUserPoints(data.newPoints)
+      if (response.ok && data.success) {
+        setTasks(prev => prev.filter(t => t.id !== taskId))
+        setUserPoints(data.newPoints)
 
-      // Refresh leaderboard
-      if (answers?.zipCode) {
-        const leaderboardResponse = await fetch(`/api/leaderboard?zipCode=${answers.zipCode}`)
-        const leaderboardData = await leaderboardResponse.json()
-        if (leaderboardData.success) {
-          setLeaderboard(leaderboardData.leaderboard.slice(0, 10))
-          setUserRank(leaderboardData.userRank)
+        if (answers?.zipCode) {
+          const leaderboardResponse = await fetch(`/api/leaderboard?zipCode=${answers.zipCode}`)
+          const leaderboardData = await leaderboardResponse.json()
+          if (leaderboardData.success) {
+            setLeaderboard(leaderboardData.leaderboard.slice(0, 10))
+            setUserRank(leaderboardData.userRank)
+          }
         }
-      }
 
-      // ✨ NEW: Refresh user statistics
-      try {
-        const statsResponse = await fetch(`/api/user-stats?userId=${userId}`)
-        const statsData = await statsResponse.json()
-        if (statsData.success) {
-          setUserStats(statsData.stats)
-          console.log('Stats refreshed after completing task')
-        }
-      } catch (error) {
-        console.error('Error refreshing stats:', error)
+        console.log('Task completed! New points:', data.newPoints)
+      } else {
+        alert('Failed to complete task: ' + data.error)
       }
-
-      console.log('Task completed! New points:', data.newPoints)
-    } else {
-      alert('Failed to complete task: ' + data.error)
+    } catch (error) {
+      console.error('Error completing task:', error)
+      alert('Failed to complete task')
+    } finally {
+      setCompletingTask(null)
     }
-  } catch (error) {
-    console.error('Error completing task:', error)
-    alert('Failed to complete task')
-  } finally {
-    setCompletingTask(null)
   }
-}
 
   const score = useMemo(() => answers ? computeScore(answers) : 0, [answers])
 
@@ -242,8 +214,15 @@ export default function Results() {
           <h2 className="text-white text-lg font-semibold">
             Basque - Your Personalized Results
           </h2>
-          <div className="text-white font-semibold">
-            🏆 {userPoints} points
+          <div className="flex items-center gap-4">
+            <div className="text-white font-semibold">
+              🏆 {userPoints} points
+            </div>
+            <Link href="/dashboard">
+              <button className="px-4 py-2 bg-white text-green-700 rounded-lg hover:bg-green-50 transition font-medium">
+                View Dashboard
+              </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -280,271 +259,9 @@ export default function Results() {
           </div>
         )}
 
-        {/* User Statistics - Improved Layout */}
-{userStats && (
-  <div className="space-y-6">
-    
-    {/* Impact by Category - Full Width */}
-    <div className="bg-white rounded-3xl shadow-xl p-8">
-      <h3 className="text-2xl font-bold text-green-700 mb-6">Your Impact by Category</h3>
-      {userStats.statsByCategory.length > 0 ? (
-        <div className="grid md:grid-cols-4 gap-6">
-          {userStats.statsByCategory.map((cat) => (
-            <div key={cat.category} className="text-center p-6 bg-green-50 rounded-2xl">
-              <div className="text-3xl mb-2">
-                {cat.category === 'transportation' ? '🚗' :
-                 cat.category === 'diet' ? '🥗' :
-                 cat.category === 'energy' ? '⚡' :
-                 cat.category === 'water' ? '💧' :
-                 cat.category === 'shopping' ? '🛍️' : '🌱'}
-              </div>
-              <div className="font-semibold text-gray-800 capitalize text-lg mb-1">
-                {cat.category}
-              </div>
-              <div className="text-3xl font-bold text-green-600 mb-1">
-                {cat.totalPoints}
-              </div>
-              <div className="text-sm text-gray-500">
-                {cat.count} action{cat.count !== 1 ? 's' : ''}
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg mb-4">Complete actions to see your impact!</p>
-          <p className="text-gray-400">Scroll down to the "Take Action" section</p>
-        </div>
-      )}
-    </div>
-
-    {/* Community Comparison & Recent Actions - Side by Side */}
-    <div className="grid md:grid-cols-2 gap-6">
-      
-      {/* Community Comparison */}
-      <div className="bg-white rounded-3xl shadow-xl p-8">
-        <h3 className="text-2xl font-bold text-green-700 mb-6">vs. Your Community</h3>
-        <div className="space-y-6">
-          
-          {/* Your Points */}
-          <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
-            <div className="text-sm text-gray-600 mb-2">Your Points</div>
-            <div className="text-5xl font-bold text-green-600 mb-3">
-              {userStats.totalPoints}
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                Community Avg: {Math.round(userStats.communityComparison.avgPoints)}
-              </div>
-              {userStats.totalPoints > userStats.communityComparison.avgPoints ? (
-                <div className="text-green-600 font-bold">
-                  ↑ {Math.round(((userStats.totalPoints / userStats.communityComparison.avgPoints) - 1) * 100)}%
-                </div>
-              ) : userStats.totalPoints === 0 ? (
-                <div className="text-gray-500 text-sm">Start now!</div>
-              ) : (
-                <div className="text-gray-500 text-sm">Keep going!</div>
-              )}
-            </div>
-          </div>
-          
-          {/* Actions Completed */}
-          <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl">
-            <div className="text-sm text-gray-600 mb-2">Actions Completed</div>
-            <div className="text-5xl font-bold text-blue-600 mb-3">
-              {userStats.totalActions}
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                Community Avg: {Math.round(userStats.communityComparison.avgActions)}
-              </div>
-              {userStats.totalActions > userStats.communityComparison.avgActions && (
-                <div className="text-blue-600 font-bold">
-                  ↑ Above avg!
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Community Size */}
-          <div className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl">
-            <div>
-              <div className="text-sm text-gray-500">Community Size</div>
-              <div className="text-2xl font-bold text-gray-800">
-                {userStats.communityComparison.totalUsers} users
-              </div>
-            </div>
-            <div className="text-3xl">👥</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Actions */}
-      <div className="bg-white rounded-3xl shadow-xl p-8">
-        <h3 className="text-2xl font-bold text-green-700 mb-6">Recent Actions</h3>
-        {userStats.actionHistory.length > 0 ? (
-          <div className="space-y-4">
-            {userStats.actionHistory.slice(0, 6).map((action, i) => (
-              <div key={i} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-green-50 transition">
-                <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-xl">
-                  {action.category === 'transportation' ? '🚗' :
-                   action.category === 'diet' ? '🥗' :
-                   action.category === 'energy' ? '⚡' :
-                   action.category === 'water' ? '💧' :
-                   action.category === 'shopping' ? '🛍️' : '🌱'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-gray-800 mb-1">
-                    {action.title}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500 capitalize">
-                      {action.category}
-                    </span>
-                    <span className="text-green-600 font-bold">
-                      +{action.pointValue} pts
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🎯</div>
-            <p className="text-gray-500 text-lg mb-2">No actions completed yet</p>
-            <p className="text-gray-400">Start earning points below!</p>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-)}
-
-        {/* Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Summary Card */}
-          <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl p-8">
-            <h3 className="text-2xl font-bold text-green-700 mb-4">Your Preference Summary</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-              <div className="md:col-span-2 flex items-center gap-3">
-                <span className="font-semibold">Location:</span>
-                {locationInfo ? (
-                  <div className="flex items-center gap-2">
-                    <span 
-                      className="px-3 py-1 rounded-full text-white font-bold text-sm shadow-md"
-                      style={{ backgroundColor: locationInfo.state.color }}
-                    >
-                      {locationInfo.state.abbreviation}
-                    </span>
-                    <span className="text-lg font-medium text-green-700">
-                      {locationInfo.displayName}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      ({locationInfo.state.name})
-                    </span>
-                  </div>
-                ) : (
-                  <span>{answers.zipCode || '-'}</span>
-                )}
-              </div>
-              <div><span className="font-semibold">Transport:</span> {answers.transportation || '-'}</div>
-              <div><span className="font-semibold">Diet:</span> {answers.diet || '-'}</div>
-              <div><span className="font-semibold">Home Energy:</span> {answers.homeEnergy || '-'}</div>
-              <div><span className="font-semibold">Thermostat:</span> {answers.thermostat || '-'}</div>
-              <div><span className="font-semibold">Recycling:</span> {answers.recycling || '-'}</div>
-              <div><span className="font-semibold">Water Use:</span> {answers.waterUsage || '-'}</div>
-              <div><span className="font-semibold">Flights/Year:</span> {answers.flightsPerYear || '-'}</div>
-              <div><span className="font-semibold">Home Size:</span> {answers.homeSize || '-'}</div>
-              <div><span className="font-semibold">WFH Days/Week:</span> {answers.wfhDays || '-'}</div>
-            </div>
-          </div>
-
-          {/* Score Card */}
-          <div className="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center justify-center">
-            <div className="text-sm text-gray-600 mb-2">Your Basque Score</div>
-            <div className="text-6xl font-extrabold text-green-700">{score}</div>
-            <div className="mt-3 text-gray-700 text-center">
-              {score >= 80 ? 'Great job - you are already very climate-conscious!' :
-               score >= 60 ? 'Solid foundation - a few tweaks can make a big impact.' :
-               score >= 40 ? 'Lots of opportunity - try a few actions below to level up.' :
-               'A fresh start - the suggestions below will help you begin strong.'}
-            </div>
-          </div>
-          
-          {/* Top Communities Leaderboard */}
-          {leaderboard.length > 0 && (
-            <div className="lg:col-span-3 bg-white rounded-3xl shadow-xl p-8">
-              <h3 className="text-2xl font-bold text-green-700 mb-4">Top Communities</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="border-b-2 border-gray-200">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Rank</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">ZIP Code</th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">Avg Points</th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">Users</th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">Total Points</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {leaderboard.map((entry) => {
-                      const isUserZip = userRank && entry.zipCode === userRank.zipCode
-                      const isMedal = entry.rank <= 3
-
-                      return (
-                        <tr
-                          key={entry.zipCode}
-                          className={`transition hover:bg-green-50 ${
-                            isUserZip ? 'bg-green-100 font-semibold' : ''
-                          }`}
-                        >
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-2">
-                              {isMedal && (
-                                <span className="text-xl">
-                                  {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : '🥉'}
-                                </span>
-                              )}
-                              <span className={isMedal ? 'text-lg font-bold' : ''}>
-                                #{entry.rank}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="font-mono font-medium">
-                              {entry.zipCode}
-                              {isUserZip && (
-                                <span className="ml-2 text-green-600">← You</span>
-                              )}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <span className="text-green-600 font-semibold">
-                              {entry.avgPoints}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right text-gray-600">
-                            {entry.userCount}
-                          </td>
-                          <td className="px-4 py-3 text-right text-gray-600">
-                            {entry.totalPoints}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          
-
-          {/* Actionable Tasks Section */}
+        {/* Actionable Tasks Section */}
         {tasks.length > 0 && (
-          <div className="lg:col-span-3 bg-white rounded-3xl shadow-xl p-8">
+          <div className="bg-white rounded-3xl shadow-xl p-8">
             <h3 className="text-2xl font-bold text-green-700 mb-4">Take Action - Earn Points!</h3>
             <p className="text-gray-600 mb-6">Complete these personalized climate actions to earn points and climb the leaderboard</p>
             <div className="grid md:grid-cols-2 gap-4">
@@ -593,52 +310,84 @@ export default function Results() {
           </div>
         )}
 
-          {/* Articles, Meals, Improvements */}
-          <div className="lg:col-span-1 bg-white rounded-3xl shadow-xl p-8">
-            <h3 className="text-xl font-bold text-green-700 mb-4">Suggested Articles</h3>
-            <ul className="space-y-3">
-              {recs.articles.map((a, i) => (
-                <li key={i}>
-                  <a href={a.link} target="_blank" rel="noopener noreferrer" className="text-green-700 hover:underline">
-                    • {a.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Top Communities Leaderboard */}
+        {leaderboard.length > 0 && (
+          <div className="bg-white rounded-3xl shadow-xl p-8">
+            <h3 className="text-2xl font-bold text-green-700 mb-4">Top Communities</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="border-b-2 border-gray-200">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Rank</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">ZIP Code</th>
+                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">Avg Points</th>
+                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">Users</th>
+                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">Total Points</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {leaderboard.map((entry) => {
+                    const isUserZip = userRank && entry.zipCode === userRank.zipCode
+                    const isMedal = entry.rank <= 3
 
-          <div className="lg:col-span-1 bg-white rounded-3xl shadow-xl p-8">
-            <h3 className="text-xl font-bold text-green-700 mb-4">Meal Ideas</h3>
-            {recs.mealPlans.map((mp, i) => (
-              <div key={i} className="mb-4">
-                <div className="font-semibold text-gray-800 mb-2">{mp.title}</div>
-                <ul className="list-disc list-inside text-gray-700 space-y-2">
-                  {mp.items?.map((it, j) => (
-                    <li key={j}><a href={it.link} target="_blank" rel="noopener noreferrer" className="text-green-700 hover:underline">{it.name}</a></li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+                    return (
+                      <tr
+                        key={entry.zipCode}
+                        className={`transition hover:bg-green-50 ${
+                          isUserZip ? 'bg-green-100 font-semibold' : ''
+                        }`}
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            {isMedal && (
+                              <span className="text-xl">
+                                {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : '🥉'}
+                              </span>
+                            )}
+                            <span className={isMedal ? 'text-lg font-bold' : ''}>
+                              #{entry.rank}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-mono font-medium">
+                            {entry.zipCode}
+                            {isUserZip && (
+                              <span className="ml-2 text-green-600">← You</span>
+                            )}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <span className="text-green-600 font-semibold">
+                            {entry.avgPoints}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right text-gray-600">
+                          {entry.userCount}
+                        </td>
+                        <td className="px-4 py-3 text-right text-gray-600">
+                          {entry.totalPoints}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-
-          <div className="lg:col-span-1 bg-white rounded-3xl shadow-xl p-8">
-            <h3 className="text-xl font-bold text-green-700 mb-4">Lifestyle Improvements</h3>
-            <ul className="space-y-3">
-              {recs.improvements.map((imp, i) => (
-                <li key={i}>
-                  <div className="font-semibold text-gray-800">{imp.title}</div>
-                  {imp.description && <div className="text-gray-700 text-sm">{imp.description}</div>}
-                  {imp.link && <a href={imp.link} target="_blank" rel="noopener noreferrer" className="text-green-700 hover:underline text-sm">Learn more</a>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        )}
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 pb-12">
+      <div className="max-w-6xl mx-auto px-6 pb-12 flex gap-4">
         <Link href="/quiz">
-          <button className="px-6 py-3 border-2 border-green-600 text-green-700 rounded-2xl hover:bg-green-50 transition">Retake Quiz</button>
+          <button className="px-6 py-3 border-2 border-green-600 text-green-700 rounded-2xl hover:bg-green-50 transition">
+            Retake Quiz
+          </button>
+        </Link>
+        <Link href="/dashboard">
+          <button className="px-6 py-3 bg-green-600 text-white rounded-2xl hover:bg-green-700 transition">
+            View Full Dashboard
+          </button>
         </Link>
       </div>
     </div>

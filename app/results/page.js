@@ -515,6 +515,15 @@ export default function Results() {
             View Full Dashboard
           </button>
         </Link>
+        <div className="max-w-6xl mx-auto px-6 pb-12 flex gap-4">
+  {/* NEW: View Map Button */}
+  <Link href="/map">
+    <button className="px-6 py-3 bg-blue-600 dark:bg-blue-700 text-white rounded-2xl hover:bg-blue-700 dark:hover:bg-blue-600 transition flex items-center gap-2">
+      <span>🗺️</span>
+      View Map
+    </button>
+  </Link>
+</div>
       </div>
     </div>
   )

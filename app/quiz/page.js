@@ -212,7 +212,7 @@ export default function Quiz() {
       
 
       {/* Progress Bar */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-card-background shadow-sm">
         <div className="max-w-3xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">

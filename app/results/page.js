@@ -263,7 +263,7 @@ export default function Results() {
                 </div>
                 <div className="text-right">
                   <div className="text-5xl font-bold text-green-100 mb-1">#{userRank.rank}</div>
-                  <p className="text-white">avg points</p>
+                  <p className="text-green-100">avg points</p>
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-green-400 grid grid-cols-4 gap-4 text-center">
@@ -302,7 +302,7 @@ export default function Results() {
 
   {/* Progress Bar */}
   <div className="relative">
-    <div className="h-8 bg-gray-200 rounded-full overflow-hidden">
+    <div className="h-8 bg-card-circle border-2 border-green-200 rounded-full overflow-hidden">
       <div 
         className="h-full bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-3"
         style={{ 
@@ -353,7 +353,7 @@ export default function Results() {
 
   {/* Next milestone */}
   {userPoints < 1000 && (
-    <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-2 border-yellow-200">
+    <div className="mt-4 p-4 bg-card-background rounded-xl border-2 border-yellow-200">
       <div className="flex items-center gap-3">
         <div className="text-3xl">🎯</div>
         <div className="flex-1">
@@ -397,7 +397,7 @@ export default function Results() {
                   className="border-2 border-gray-200 rounded-xl p-5 hover:border-green-300 transition card"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+                    <span className="px-3 py-1 bg-card-background text-green-700 text-sm border-2 border-green-600 font-medium rounded-full">
                       {task.category}
                     </span>
                     <span className="text-green-600 font-bold text-lg">
@@ -459,8 +459,8 @@ export default function Results() {
                     return (
                       <tr
                         key={entry.zipCode}
-                        className={`transition hover:bg-green-50 ${
-                          isUserZip ? 'bg-green-100 font-semibold' : ''
+                        className={`transition hover:bg-green-500 ${
+                          isUserZip ? 'bg-card-background font-semibold' : ''
                         }`}
                       >
                         <td className="px-4 py-3">

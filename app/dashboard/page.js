@@ -175,7 +175,7 @@ export default function Dashboard() {
         )}
 
         {/* Impact by Category - Full Width */}
-        <div className="rounded-3xl shadow-xl p-8 bg-card-background">
+        <div className="rounded-3xl shadow-xl p-8 bg-card-background card">
           <h3 className="text-2xl font-bold text-default-foreground mb-6">Your Impact by Category</h3>
           {userStats.statsByCategory.length > 0 ? (
             <div className="grid md:grid-cols-4 gap-6">
@@ -216,7 +216,7 @@ export default function Dashboard() {
         <div className="grid md:grid-cols-2 gap-6">
           
           {/* Community Comparison */}
-          <div className="rounded-3xl shadow-xl p-8 bg-card-background">
+          <div className="rounded-3xl shadow-xl p-8 bg-card-background card">
             <h3 className="text-2xl font-bold text-default-foreground mb-6">vs. Your Community</h3>
             <div className="space-y-6">
               
@@ -258,7 +258,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl bg-card-background card">
+              <div className="flex items-center justify-between p-4 border-2 border-green-600 rounded-xl bg-card-background card">
                 <div>
                   <div className="text-sm text-default-foreground">Community Size</div>
                   <div className="text-2xl font-bold text-default-foreground">
@@ -277,7 +277,7 @@ export default function Dashboard() {
               <div className="space-y-4">
                 {userStats.actionHistory.slice(0, 6).map((action, i) => (
                   <div key={i} className="flex items-start gap-4 p-4 rounded-xl hover:bg-green-50 transition bg-card-background card">
-                    <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-xl">
+                    <div className="flex-shrink-0 w-12 h-12 border-2 border-green-600 rounded-full flex items-center justify-center text-xl">
                       {action.category === 'transportation' ? '🚗' :
                        action.category === 'diet' ? '🥗' :
                        action.category === 'energy' ? '⚡' :

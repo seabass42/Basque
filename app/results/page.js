@@ -209,23 +209,6 @@ export default function Results() {
 
   return (
     <div className="min-h-screen card">
-      <div className="bg-green-700 py-4 px-6 shadow-md">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h2 className="text-white text-lg font-semibold">
-            Basque - Your Personalized Results
-          </h2>
-          <div className="flex items-center gap-4">
-            <div className="text-white font-semibold">
-              🏆 {userPoints} points
-            </div>
-            <Link href="/dashboard">
-              <button className="px-4 py-2 bg-white text-green-700 rounded-lg hover:bg-green-50 transition font-medium">
-                View Dashboard
-              </button>
-            </Link>
-          </div>
-        </div>
-      </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
         

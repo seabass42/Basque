@@ -86,17 +86,6 @@ export default function Dashboard() {
 
   return (
     <div className="relative min-h-screen card">
-       {/* Header */}
-       <div className="bg-green-700 py-4 px-6 shadow-md">
-         <div className="max-w-6xl mx-auto flex justify-between items-center">
-           <h2 className="text-white text-lg font-semibold">
-             Basque - Your Dashboard
-           </h2>
-           <div className="text-white font-semibold">
-             🏆 {userStats.totalPoints} points
-           </div>
-         </div>
-       </div>
 
        <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
         

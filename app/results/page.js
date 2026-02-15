@@ -247,7 +247,19 @@ export default function Results() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-2xl font-bold mb-2">Your Community Ranking</h3>
+                  {locationInfo ? (
+                  <p className="text-green-100 flex items-center gap-2">
+                    <span
+                      className="px-2 py-1 rounded-full text-white font-bold text-xs"
+                      style={{ backgroundColor: locationInfo.state.color }}
+                    >
+                      {locationInfo.state.abbreviation}
+                    </span>
+                    {locationInfo.displayName} ({userRank.zipCode})
+                  </p>
+                ) : (
                   <p className="text-green-100">ZIP Code {userRank.zipCode}</p>
+                  )}
                 </div>
                 <div className="text-right">
                   <div className="text-5xl font-bold mb-1">#{userRank.rank}</div>

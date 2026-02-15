@@ -132,11 +132,11 @@ export default function Dashboard() {
             <div className="relative z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-2xl font-bold mb-2 text-white">Your Community Ranking</h3>
+                  <h3 className="text-2xl font-bold mb-2 text-green-100">Your Community Ranking</h3>
                   {locationInfo ? (
-                  <p className="flex items-center gap-2">
+                  <p className="text-green-100 flex items-center gap-2">
                     <span
-                      className="px-2 py-1 rounded-full text-white font-bold text-xs"
+                      className="px-2 py-1 rounded-full text-green-100 font-bold text-xs"
                       style={{ backgroundColor: locationInfo.state.color }}
                     >
                       {locationInfo.state.abbreviation}
@@ -144,30 +144,30 @@ export default function Dashboard() {
                     {locationInfo.displayName} ({userRank.zipCode})
                   </p>
                 ) : (
-                  <p>ZIP Code {userRank.zipCode}</p>
+                  <p className="text-green-100">ZIP Code {userRank.zipCode}</p>
                 )}
                 </div>
                 <div className="text-right">
-                  <div className="text-5xl font-bold mb-1">#{userRank.rank}</div>
-                  <p className="text-white">avg points</p>
+                  <div className="text-5xl font-bold text-green-100 mb-1">#{userRank.rank}</div>
+                  <p className="text-green-100">avg points</p>
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-green-400 grid grid-cols-4 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-white">{userRank.userCount}</div>
-                  <div className="text-sm text-white">Active Users</div>
+                  <div className="text-2xl font-bold text-green-100">{userRank.userCount}</div>
+                  <div className="text-sm text-green-100">Active Users</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-white">{userRank.totalPoints}</div>
-                  <div className="text-sm text-white">Total Points</div>
+                  <div className="text-2xl font-bold text-green-100">{userRank.totalPoints}</div>
+                  <div className="text-sm text-green-100">Total Points</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-white">{userRank.topScore}</div>
-                  <div className="text-sm text-white">Top User</div>
+                  <div className="text-2xl font-bold text-green-100">{userRank.topScore}</div>
+                  <div className="text-sm text-green-100">Top User</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-white">{userStats.totalPoints}</div>
-                  <div className="text-sm text-white">🏆 Your Points</div>
+                  <div className="text-2xl font-bold text-green-100">{userStats.totalPoints}</div>
+                  <div className="text-sm text-green-100">🏆 Your Points</div>
                 </div>
               </div>
             </div>

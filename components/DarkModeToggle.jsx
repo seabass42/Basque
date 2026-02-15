@@ -6,18 +6,6 @@ import { MoonIcon, SunIcon } from '@heroicons/react/24/solid'; // Assuming Heroi
 const DarkModeToggle = () => {
   const [darkMode, setDarkMode] = useState(false);
 
-  useEffect(() => {
-    // Check local storage for theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setDarkMode(false);
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     if (!darkMode) {
